@@ -1,0 +1,16 @@
+{
+  "name": "collisionproblem",
+  "version": "0.0.0",
+  "description": "Simulating the collision problem",
+  "main": "index.js",
+  "repository": "__",
+  "author": "Akshay Nair <phenax5@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.11.0"
+  }
+}
