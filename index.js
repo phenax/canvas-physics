@@ -29,10 +29,10 @@ const runFrameLoop = (b1, b2, screen) => {
   if (isInContact(b1, b2)) {
     const [bx1, bx2] = [collide(nextBox1, nextBox2), collide(nextBox2, nextBox1)];
     nextBox1 = bx1;
-    nextBox2 = { ...bx2, position: bx2.position, velocity: 0 };
+    nextBox2 = bx2;
   }
 
-  if(count > 50) return;
+  if(count > 80) return;
   onNextFrame(() => runFrameLoop(nextBox1, nextBox2, screen));
 };
 
