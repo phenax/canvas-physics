@@ -1,5 +1,5 @@
 import Screen from './lib/Screen';
-import Box, { CONTACT_DELTA, moveBox, collide, isInContact } from './lib/Box';
+import Box, { moveBox, collide, isInContact } from './lib/Box';
 import { drawBox, drawScreen, clearScreen } from './lib/draw';
 import { onNextFrame, renderCanvas } from './lib/utils';
 
@@ -7,6 +7,7 @@ import { onNextFrame, renderCanvas } from './lib/utils';
 const collideWithWall = box => collide(box, Box({ mass: Infinity }));
 
 let count = 0;
+let collisionCount = 0;
 const runFrameLoop = (b1, b2, screen) => {
   // Draw
   screen
@@ -20,9 +21,9 @@ const runFrameLoop = (b1, b2, screen) => {
   count++;
 
   // Wall collisions
-  if(nextBox1.position < CONTACT_DELTA && nextBox1.velocity < 0)
+  if(nextBox1.position < 0 && nextBox1.velocity < 0)
     nextBox1 = collideWithWall(nextBox1);
-  if(nextBox2.position < CONTACT_DELTA && nextBox2.velocity < 0)
+  if(nextBox2.position < 0 && nextBox2.velocity < 0)
     nextBox2 = collideWithWall(nextBox2);
 
   // Box collision
@@ -30,9 +31,11 @@ const runFrameLoop = (b1, b2, screen) => {
     const [bx1, bx2] = [collide(nextBox1, nextBox2), collide(nextBox2, nextBox1)];
     nextBox1 = bx1;
     nextBox2 = bx2;
+    collisionCount++;
+    console.log(collisionCount);
   }
 
-  if(count > 80) return;
+  // if(count > 180) return;
   onNextFrame(() => runFrameLoop(nextBox1, nextBox2, screen));
 };
 
@@ -42,7 +45,7 @@ const $canvas = renderCanvas($root);
 const screen = Screen($canvas, { origin: [20, 250] });
 
 const box1 = Box({ mass: 1, position: 400, velocity: 0 });
-const box2 = Box({ mass: 500, position: 500, velocity: -5 });
+const box2 = Box({ mass: 100, position: 500, velocity: -5 });
 
 runFrameLoop(box1, box2, screen);
 
