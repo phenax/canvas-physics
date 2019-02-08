@@ -2,19 +2,22 @@ import Screen from './lib/Screen';
 import Box, { moveBox } from './lib/Box';
 import { drawBox, drawScreen, clearScreen } from './lib/draw';
 
+// Debugging + hot reload issue with timers
 (window.cleanup || []).forEach(fn => fn());
 window.cleanup = [];
 
-const $root = document.getElementById('root');
-while($root.firstChild) $root.removeChild($root.firstChild);
+const renderCanvas = $root => {
+  while($root.firstChild) $root.removeChild($root.firstChild);
 
-const $canvas = document.createElement('canvas');
-$canvas.style.border = '1px solid #ccc';
-$canvas.style.backgroundColor = '#f9f9f9';
-$canvas.width = 700;
-$canvas.height = 300;
+  const $canvas = document.createElement('canvas');
+  $canvas.style.border = '1px solid #ccc';
+  $canvas.style.backgroundColor = '#f9f9f9';
+  $canvas.width = 700;
+  $canvas.height = 300;
 
-$root.appendChild($canvas);
+  $root.appendChild($canvas);
+  return $canvas
+};
 
 
 const onNextFrame = fn => {
@@ -49,7 +52,7 @@ const collide = (b1, b2) => {
 const collideWithWall = box => collide(box, Box({ mass: Infinity }));
 
 let count = 0;
-const renderFrame = (b1, b2, screen) => {
+const runFrameLoop = (b1, b2, screen) => {
   // Draw
   screen
     |> clearScreen
@@ -70,21 +73,22 @@ const renderFrame = (b1, b2, screen) => {
   // Box collision
   if (isInContact(b1, b2)) {
     const [bx1, bx2] = [collide(nextBox1, nextBox2), collide(nextBox2, nextBox1)];
-    console.log(bx1.position, bx1.velocity, bx2.position, bx2.velocity);
+    // console.log(bx1.position, bx1.velocity, bx2.position, bx2.velocity);
     nextBox1 = bx1;
-    nextBox2 = { ...bx2, position: bx2.position + 10, velocity: 0 };
+    nextBox2 = { ...bx2, position: bx2.position, velocity: 0 };
   }
 
-  if(count > 130) return;
-  onNextFrame(() => renderFrame(nextBox1, nextBox2, screen));
+  if(count > 50) return;
+  onNextFrame(() => runFrameLoop(nextBox1, nextBox2, screen));
 };
 
+const $root = document.getElementById('root');
+const $canvas = renderCanvas($root);
 
-const screen = Screen($canvas, { origin: [20, 200] });
+const screen = Screen($canvas, { origin: [20, 250] });
 
 const box1 = Box({ mass: 1, position: 400, velocity: 0 });
 const box2 = Box({ mass: 500, position: 500, velocity: -5 });
 
-renderFrame(box1, box2, screen);
-
+runFrameLoop(box1, box2, screen);
 
