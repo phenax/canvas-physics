@@ -22,45 +22,35 @@ const onNextFrame = fn => {
   window.cleanup.push(() => clearTimeout(t));
 };
 
-const CONTACT_DELTA = 1;
+const CONTACT_DELTA = 0;
 
-const isInContact = (box1, box2) => {
-  const check = (b1, b2) => {
-    const gap = b2.position - (b1.size + b1.position);
-    return gap < CONTACT_DELTA;
-  }
+const distance = (b1, b2) => b2.position - (b1.size + b1.position);
 
-  return box1.position < box2.position
-    ? check(box1, box2)
-    : check(box2, box1);
-};
+const isInContact = (b1, b2) => distance(b1, b2) <= CONTACT_DELTA;
 
 const collide = (b1, b2) => {
+  if (b1.mass === Infinity) return b1;
+  if (b2.mass === Infinity) return {
+    ...b1,
+    velocity: -b1.velocity,
+  };
+
   const momentum2 = b2.mass * b2.velocity;
   const massDiff = b1.mass - b2.mass;
   const totalMass = b1.mass + b2.mass;
 
-  // Shift to prevent the sticky block bug.
-  const shift =
-    b1.position < b2.position &&
-    b2.position - (b1.position + b1.size) < CONTACT_DELTA
-      ? CONTACT_DELTA : 0;
-
   return {
     ...b1,
-    position: b1.position - shift,
-    velocity: (2 * momentum2 - b1.velocity * massDiff) / totalMass,
+    velocity: (2 * momentum2 + b1.velocity * massDiff) / totalMass,
   };
 };
 
 // Wall collision
-const collideWithWall = box => ({
-  ...box,
-  velocity: -box.velocity,
-});
+const collideWithWall = box => collide(box, Box({ mass: Infinity }));
 
 let count = 0;
 const renderFrame = (b1, b2, screen) => {
+  // Draw
   screen
     |> clearScreen
     |> drawScreen
@@ -82,19 +72,18 @@ const renderFrame = (b1, b2, screen) => {
     const [bx1, bx2] = [collide(nextBox1, nextBox2), collide(nextBox2, nextBox1)];
     console.log(bx1.position, bx1.velocity, bx2.position, bx2.velocity);
     nextBox1 = bx1;
-    nextBox2 = bx2;
-    // console.log('COLLISON ALERT');
+    nextBox2 = { ...bx2, position: bx2.position + 10, velocity: 0 };
   }
 
-  if(count > 100) return;
+  if(count > 130) return;
   onNextFrame(() => renderFrame(nextBox1, nextBox2, screen));
 };
 
 
-const screen = Screen($canvas, { origin: [10, 200] });
+const screen = Screen($canvas, { origin: [20, 200] });
 
 const box1 = Box({ mass: 1, position: 400, velocity: 0 });
-const box2 = Box({ mass: 100, position: 500, velocity: -5 });
+const box2 = Box({ mass: 500, position: 500, velocity: -5 });
 
 renderFrame(box1, box2, screen);
 
