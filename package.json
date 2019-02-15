@@ -9,7 +9,7 @@
   "scripts": {
     "start": "parcel *.html",
     "build": "parcel build *.html",
-    "publish-page": "git subtree push --prefix ./dist origin gh-pages"
+    "publish-page": "git subtree push --prefix dist origin gh-pages"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
