@@ -10,7 +10,7 @@ const { cos, sin, pow } = Math;
 
 const GRAVITY = 1;
 
-const dependentAngularAcceleration = (rod1, rod2) => {
+const angularAcceleration = (rod1, rod2) => {
   const mratio = 1 + rod1.mass + rod2.mass;
   const angDiff = rod1.angle - rod2.angle;
   const cosDiff = cos(angDiff);
@@ -30,28 +30,29 @@ const dependentAngularAcceleration = (rod1, rod2) => {
   return [angAcc1, angAcc2];
 };
 
-let count = 0;
 const runFrameLoop = (pendulum, screen) => {
-  // Apply gravity
-  const [ rod1, rod2 ] = pendulum.rods;
+  let [ rod1, rod2 ] = pendulum.rods;
 
   // Apply dependent effect
-  const [angAcc1, angAcc2] = dependentAngularAcceleration(rod1, rod2);
-  const [angVel1, angVel2] =
-    [rod1.angularVelocity + angAcc1, rod2.angularVelocity + angAcc2];
-  const tail = rod1.tail();
+  const [angAcc1, angAcc2] = angularAcceleration(rod1, rod2);
+  const [angVel1, angVel2] = [rod1.angularVelocity + angAcc1, rod2.angularVelocity + angAcc2];
+
+  rod1 = Rod({
+    ...rod1,
+    angle: rod1.angle + angVel1,
+    angularVelocity: angVel1,
+  });
+  rod2 = Rod({
+    ...rod2,
+    angle: rod2.angle + angVel2,
+    angularVelocity: angVel2,
+  });
   pendulum = Pendulum({
     rods: [
-      Rod({
-        ...rod1,
-        angle: rod1.angle + angVel1,
-        angularVelocity: angVel1,
-      }),
+      rod1,
       Rod({
         ...rod2,
-        pivot: tail,
-        angle: rod2.angle + angVel2,
-        angularVelocity: angVel2,
+        pivot: rod1.tail(),
       }),
     ],
   });
@@ -62,7 +63,6 @@ const runFrameLoop = (pendulum, screen) => {
     |> drawScreen
     |> drawPendulum(pendulum);
 
-  if(++count > 2000) return;
   onNextFrame(() => runFrameLoop(pendulum, screen));
 };
 
@@ -73,8 +73,8 @@ const screen = Screen($canvas, { origin: [350, 300] });
 
 const pendulum = Pendulum({
   rods: [
-    Rod({ length: 100, mass: 20, angle: Math.PI / 2 }),
-    Rod({ length: 100, mass: 10, angle: Math.PI / 2 }),
+    Rod({ length: 100, mass: 10, angle: Math.PI / 2 + .9 }),
+    Rod({ length: 150, mass: 10, angle: Math.PI / 2 }),
   ],
 });
 
