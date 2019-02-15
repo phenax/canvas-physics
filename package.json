@@ -3,13 +3,13 @@
   "version": "0.0.0",
   "description": "Simulating physics problems on canvas",
   "main": "index.js",
-  "repository": "__",
+  "repository": "https://github.com/phenax/canvas-physics",
   "author": "Akshay Nair <phenax5@gmail.com>",
   "license": "MIT",
   "scripts": {
     "start": "parcel *.html",
     "build": "parcel build *.html",
-    "publish-page": "git subtree push --prefix dist origin gh-pages"
+    "publish-page": "yarn build --public-url /canvas-physics && git subtree push --prefix dist origin gh-pages"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
